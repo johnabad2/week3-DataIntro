@@ -9,7 +9,7 @@ import seaborn as sns
 # Use a consistent style for all charts in this notebook.
 sns.set_theme(style="whitegrid")
 
-df = pd.read_csv("C:\\Users\\abadj\\Documents\\GitHub\\CSC1171\\Week 1\\week3-DataIntro\\data\\penguins.csv")
+df = pd.read_csv("C:\\Users\\abadj\\Downloads\\ld50_cleaned.csv")
 df.head(3)
 
 # Build Anscombe's quartet as one table.
@@ -34,26 +34,44 @@ summary = anscombe.groupby("dataset").agg(
 summary["r"] = anscombe.groupby("dataset")[["x", "y"]].corr().xs("x", level=1)["y"]
 print(summary.round(2))
 
-sub = df.dropna(subset=["bill_length_mm", "bill_depth_mm"])
+sub = df.dropna(subset=["MolWt", "LD50", "RingCount"]).copy()
+sub["ring_group"] = pd.cut(
+    sub["RingCount"],
+    bins=[-1, 0, 1, 2, 3, 4, np.inf],
+    labels=["0", "1", "2", "3", "4", "5+"],
+)
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
 
-# Left: the overall relationship across all penguins.
-# corr() uses Pearson correlation by default, so the line measures linear association.
-sns.regplot(data=sub, x="bill_length_mm", y="bill_depth_mm",
+# Left: the overall relationship across all compounds.
+sns.regplot(data=sub, x="MolWt", y="LD50",
             scatter_kws={"alpha": 0.6}, line_kws={"color": "black"}, ax=axes[0])
-axes[0].set_title(f"All penguins (Pearson r = {sub['bill_length_mm'].corr(method='pearson', other=sub['bill_depth_mm']):.2f})")
+axes[0].set_xlabel("Molecular weight (MolWt)")
+axes[0].set_ylabel("LD50")
+axes[0].set_title(f"All compounds (Pearson r = {sub['MolWt'].corr(sub['LD50']):.2f})")
 
-# Right: draw one fitted line for each species.
-for sp, g in sub.groupby("species"):
-    sns.regplot(data=g, x="bill_length_mm", y="bill_depth_mm",
-                scatter_kws={"alpha": 0.6}, label=sp, ax=axes[1])
-axes[1].legend(title="species")
-axes[1].set_title("By species: every slope flips")
+# Right: draw one fitted line for each ring-count group.
+ring_groups = ["0", "1", "2", "3", "4", "5+"]
+palette = sns.color_palette("colorblind", n_colors=len(ring_groups))
+for ring_group, group in sub.groupby("ring_group", observed=True):
+    color = palette[ring_groups.index(ring_group)]
+    sns.regplot(
+        data=group,
+        x="MolWt",
+        y="LD50",
+        scatter_kws={"alpha": 0.3, "s": 18},
+        label=f"{ring_group} rings",
+        color=color,
+        ax=axes[1],
+    )
+axes[1].legend(title="Number of rings")
+axes[1].set_xlabel("Molecular weight (MolWt)")
+axes[1].set_ylabel("LD50")
+axes[1].set_title("LD50 by molecular weight and ring count")
 
 plt.tight_layout()
 plt.show()
 
-print("overall: ", round(sub["bill_length_mm"].corr(method="pearson", other=sub["bill_depth_mm"]), 3))
-for sp, g in sub.groupby("species"):
-    print(f"{sp:12s}", round(g["bill_length_mm"].corr(method="pearson", other=g["bill_depth_mm"]), 3))
+print("Overall Pearson r:", round(sub["MolWt"].corr(sub["LD50"]), 3))
+for ring_group, group in sub.groupby("ring_group", observed=True):
+    print(f"{ring_group:>2} rings:", round(group["MolWt"].corr(group["LD50"]), 3))

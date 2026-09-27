@@ -17,9 +17,11 @@ numeric_data = df.select_dtypes("number")
 corr = numeric_data.corr(method="pearson")
 
 # A heatmap makes positive and negative relationships easier to scan.
-plt.figure(figsize=(6, 5))
-sns.heatmap(corr, annot=True, fmt=".2f", cmap="vlag", center=0,
+plt.figure(figsize=(18, 16))
+sns.heatmap(corr, annot=False, cmap="vlag", center=0,
             vmin=-1, vmax=1, square=True, cbar_kws={"label": "Pearson correlation"})
+plt.xticks(rotation=45, ha="right", fontsize=9)
+plt.yticks(rotation=0, fontsize=9)
 plt.title("Pearson correlation matrix")
 plt.tight_layout()
 plt.show()

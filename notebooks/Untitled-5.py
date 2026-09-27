@@ -8,7 +8,7 @@ import seaborn as sns
 # Use a consistent style for all charts in this notebook.
 sns.set_theme(style="whitegrid")
 
-df = pd.read_csv("C:\\Users\\abadj\\Documents\\GitHub\\CSC1171\\Week 1\\week3-DataIntro\\data\\penguins.csv")
+df = pd.read_csv("C:\\Users\\abadj\\Downloads\\ld50_cleaned.csv")
 df.head(3)
 
 # Build Anscombe's quartet as one table.
@@ -33,17 +33,22 @@ summary = anscombe.groupby("dataset").agg(
 summary["r"] = anscombe.groupby("dataset")[["x", "y"]].corr().xs("x", level=1)["y"]
 print(summary.round(2))
 
-labels = ["A", "B", "C", "D", "E"]
-values = [23, 21, 19, 20, 17]
+ring_counts = pd.cut(
+    df["RingCount"].dropna(),
+    bins=[-1, 0, 1, 2, 3, 4, np.inf],
+    labels=["0", "1", "2", "3", "4", "5+"],
+)
+counts = ring_counts.value_counts(sort=False)
+labels = [f"{ring_count} rings" for ring_count in counts.index]
 
-# Compare the same values as angles and as bar lengths.
+# Compare compound counts as shares and as bar lengths.
 fig, axes = plt.subplots(1, 2, figsize=(11, 4))
-axes[0].pie(values, labels=labels, autopct=None)
-axes[0].set_title("Pie: rank these by eye")
+axes[0].pie(counts.to_numpy(), labels=labels, autopct="%1.1f%%")
+axes[0].set_title("Share of compounds by ring count")
 
-axes[1].barh(labels[::-1], values[::-1])
-axes[1].set_xlabel("value")
-axes[1].set_title("Bar: took you no time at all")
+axes[1].barh(labels[::-1], counts.to_numpy()[::-1])
+axes[1].set_xlabel("Number of compounds")
+axes[1].set_title("Compound count by ring count")
 
 plt.tight_layout()
 plt.show()

@@ -8,7 +8,7 @@ import seaborn as sns
 # Use a consistent style for all charts in this notebook.
 sns.set_theme(style="whitegrid")
 
-df = pd.read_csv("C:\\Users\\abadj\\Documents\\GitHub\\CSC1171\\Week 1\\week3-DataIntro\\data\\penguins.csv")
+df = pd.read_csv("C:\\Users\\abadj\\Downloads\\ld50_cleaned.csv")
 df.head(3)
 
 # Build Anscombe's quartet as one table.
@@ -36,14 +36,26 @@ print(summary.round(2))
 # Compare a summary plot, a spread plot, and the individual observations.
 fig, axes = plt.subplots(1, 3, figsize=(14, 3.5))
 
-sns.barplot(data=df, x="species", y="body_mass_g", errorbar=None, ax=axes[0])
-axes[0].set_title("Bar of means: hides everything")
+df["ring_group"] = pd.cut(
+    df["RingCount"],
+    bins=[-1, 0, 1, 2, 3, 4, np.inf],
+    labels=["0", "1", "2", "3", "4", "5+"],
+)
 
-sns.boxplot(data=df, x="species", y="body_mass_g", ax=axes[1])
-axes[1].set_title("Box: shows spread")
+sns.barplot(data=df, x="ring_group", y="LD50", errorbar=None, ax=axes[0])
+axes[0].set_title("Mean LD50 by ring count")
+axes[0].set_xlabel("Number of rings")
+axes[0].set_ylabel("LD50")
 
-sns.stripplot(data=df, x="species", y="body_mass_g", alpha=0.5, ax=axes[2])
-axes[2].set_title("Every penguin: shows the truth")
+sns.boxplot(data=df, x="ring_group", y="LD50", ax=axes[1])
+axes[1].set_title("LD50 spread by ring count")
+axes[1].set_xlabel("Number of rings")
+axes[1].set_ylabel("LD50")
+
+sns.stripplot(data=df, x="ring_group", y="LD50", alpha=0.5, ax=axes[2])
+axes[2].set_title("Individual LD50 values by ring count")
+axes[2].set_xlabel("Number of rings")
+axes[2].set_ylabel("LD50")
 
 plt.tight_layout()
 plt.show()

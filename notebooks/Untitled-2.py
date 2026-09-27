@@ -8,7 +8,7 @@ import seaborn as sns
 # Use a consistent style for all charts in this notebook.
 sns.set_theme(style="whitegrid")
 
-df = pd.read_csv("C:\\Users\\abadj\\Documents\\GitHub\\CSC1171\\Week 1\\week3-DataIntro\\data\\penguins.csv")
+df = pd.read_csv("C:\\Users\\abadj\\Downloads\\ld50_cleaned.csv")
 df.head(3)
 
 # Build Anscombe's quartet as one table.
@@ -36,18 +36,24 @@ print(summary.round(2))
 # Compare four ways to show the distribution of one numeric column.
 fig, axes = plt.subplots(1, 4, figsize=(15, 3.2))
 
-sns.histplot(data=df, x="flipper_length_mm", bins=25, ax=axes[0])
-axes[0].set_title("Histogram")
+sns.histplot(data=df, x="LD50", bins=25, ax=axes[0])
+axes[0].set_title("LD50 distribution")
+axes[0].set_xlabel("LD50")
+axes[0].set_ylabel("Number of compounds")
 
-sns.boxplot(data=df, y="flipper_length_mm", ax=axes[1])
-axes[1].set_title("Box plot")
+sns.boxplot(data=df, y="LD50", ax=axes[1])
+axes[1].set_title("LD50 box plot")
+axes[1].set_ylabel("LD50")
 
-sns.violinplot(data=df, y="flipper_length_mm", ax=axes[2])
-axes[2].set_title("Violin")
+sns.violinplot(data=df, y="LD50", ax=axes[2])
+axes[2].set_title("LD50 violin plot")
+axes[2].set_ylabel("LD50")
 
-sns.ecdfplot(data=df, x="flipper_length_mm", ax=axes[3])
-axes[3].set_title("ECDF")
+sns.ecdfplot(data=df, x="LD50", ax=axes[3])
+axes[3].set_title("LD50 ECDF")
+axes[3].set_xlabel("LD50")
+axes[3].set_ylabel("Cumulative proportion")
 
 plt.tight_layout()
-plt.savefig("penguin_comparison.png", dpi=150, bbox_inches="tight")
+plt.savefig("ld50_distribution.png", dpi=150, bbox_inches="tight")
 plt.show()
