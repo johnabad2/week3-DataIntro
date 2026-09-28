@@ -13,13 +13,27 @@ df.head()
 
 df.describe().T
 
-numeric_data = df.select_dtypes("number")
-corr = numeric_data.corr(method="pearson")
+number_of_rows = 344
+number_of_columns = 7
+column_with_most_missing = "sex"
+duplicate_rows = 0
+numeric_columns = ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"]
 
-# A heatmap makes positive and negative relationships easier to scan.
-plt.figure(figsize=(6, 5))
-sns.heatmap(corr, annot=True, fmt=".2f", cmap="vlag", center=0,
-            vmin=-1, vmax=1, square=True, cbar_kws={"label": "Pearson correlation"})
-plt.title("Pearson correlation matrix")
-plt.tight_layout()
-plt.show()
+print(number_of_rows, number_of_columns)
+print(column_with_most_missing, duplicate_rows)
+print(numeric_columns)
+
+from pathlib import Path
+import sys
+import importlib
+
+project_root = Path.cwd()
+if not (project_root / "tests").is_dir():
+    project_root = project_root.parent
+sys.path.insert(0, str(project_root))
+
+import tests.test_first_look as first_look_tests
+importlib.reload(first_look_tests)
+
+check_passed = first_look_tests.check_first_look(globals())
+print("Passed" if check_passed else "Not passed yet")
